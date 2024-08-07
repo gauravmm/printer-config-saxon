@@ -27,6 +27,12 @@ Once the hardware is all assembled, ensure that the electronics are wired as fol
       1. `cd ~; git clone https://github.com/protoloft/klipper_z_calibration.git`
       2. `ln -sf ~/klipper_z_calibration/z_calibration.py ~/klipper/klippy/extras/z_calibration.py`
       3. `sudo systemctl restart klipper`
+   7. Configure the CANable USB-CAN adapter
+      1. Set up `can0` using [this guide](https://mellow-3d.github.io/fly-sht42_klipper.html).
+      2. Run `ip -s -d link show can0` and verify that `bitrate 1000000` and `txqueuelen 1024` are set.
+   8. Install `katapult`
+      1. Run `cd ~; git clone https://github.com/Arksine/katapult`
+      2. Run `sudo apt install dfu-util -y`
 
 3. Flashing chips
    1. Compile firmware for the Octopus Pro v1.
@@ -36,5 +42,23 @@ Once the hardware is all assembled, ensure that the electronics are wired as fol
       2. Run `make` to compile the firmware.
       3. Rename it to `firmware.bin` and download it into a microSD card. Insert it into the Octopus Pro and reset it.
       4. In `printer.cfg` update the `serial` field of `[mcu]` with path to the controller.
-   2. Compile firmware for the Mellow FLY SHT-42.
-      1.
+
+   2. Compile Katapult (formerly CanBoot) for the [Mellow FLY SHT-42](https://mellow-3d.github.io/fly-sht42_canboot_can.html) **NOTE: You only need to do this once**, the first time you set up a new board. Subsequent times, you can just flash the firmware over CAN.
+      1. From the `katapult` folder run `make menuconfig`.
+         1. Select the STM32F072 with a 8KiB bootloader and an 8MHz crystal.
+         2. Ensure the comm. interface is `CAN bus (on PA8/PA9)` and the CAN bus speed is 1000000
+         3. Set application start offset to be `8 KiB`
+         4. Set "Support bootloader entry on rapid double-click of reset button"
+         5. "Enable Status LED" and `!PC13`
+      2. Run `make` to compile the firmware.
+      3. Flash it
+
+   3. Compile firmware for the [Mellow FLY SHT-42](https://mellow-3d.github.io/fly-sht42_klipper_can.html).
+      1. From the `klipper` folder, run `make menuconfig`.
+         1. Select the STM32F072 with a 8KiB bootloader and an 8MHz crystal.
+         2. Ensure the comm. interface is `CAN bus (on PA8/PA9)` and the CAN bus speed is 1000000
+         3. Set GPIO pins to: `PB10,PB11` to run both fans.
+      2. Run `make` to compile the firmware.
+      3. Flash it
+
+Documentation for the [FLY SHT-42](https://mellow-3d.github.io/fly-sht42_general.html).
