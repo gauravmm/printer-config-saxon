@@ -52,6 +52,13 @@ Once the hardware is all assembled, ensure that the electronics are wired as fol
          5. "Enable Status LED" and `!PC13`
       2. Run `make` to compile the firmware.
       3. Flash it
+         1. Disconnect from the CAN cable.
+         2. Connect a jumper to the DFU override port.
+         3. Connect to USB. Run `lsusb` and check for DFU Mode.
+         4. Flash with `sudo dfu-util -a 0 -D ~/katapult/out/katapult.bin --dfuse-address x08000000:force:mass-erase:leave -d 0483:df11`
+         5. Disconnect from USB, connect to CAN.
+      4. Check connectivity with `~/klippy-env/bin/python ~/klipper/scripts/canbus_query.py can0`.
+         1. Update `printer.cfg` with the UUID reported by the command.
 
    3. Compile firmware for the [Mellow FLY SHT-42](https://mellow-3d.github.io/fly-sht42_klipper_can.html).
       1. From the `klipper` folder, run `make menuconfig`.
@@ -60,5 +67,7 @@ Once the hardware is all assembled, ensure that the electronics are wired as fol
          3. Set GPIO pins to: `PB10,PB11` to run both fans.
       2. Run `make` to compile the firmware.
       3. Flash it
+         1. Get the UUID using `~/klippy-env/bin/python ~/klipper/scripts/canbus_query.py can0`
+         1. `python3 ~/katapult/scripts/flash_can.py -i can0 -f ~/klipper/out/klipper.bin  -u ad7502cd87f`, substituting in the UUID as necessary.
 
 Documentation for the [FLY SHT-42](https://mellow-3d.github.io/fly-sht42_general.html).
